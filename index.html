@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw vs Hermes Agent — An Honest Comparison</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+            color: #e8e8e8;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        .presentation {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            padding: 60px;
+            text-align: center;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 200;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2.8rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            color: #ffffff;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            color: #b8b8b8;
+        }
+
+        p, li {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #d0d0d0;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #9a9a9a;
+            font-weight: 300;
+            margin-bottom: 3rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .platform {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .platform:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .platform.openclaw {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .platform.hermes {
+            border-left: 4px solid #6c5ce7;
+        }
+
+        .platform-title {
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .openclaw .platform-title {
+            color: #ff6b6b;
+        }
+
+        .hermes .platform-title {
+            color: #6c5ce7;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 1.1rem;
+        }
+
+        .feature-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .metric {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #4ecdc4;
+            display: block;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #9a9a9a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #9a9a9a;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #9a9a9a;
+            backdrop-filter: blur(10px);
+        }
+
+        .architecture-diagram {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .arch-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .arch-box.openclaw {
+            border-top: 3px solid #ff6b6b;
+        }
+
+        .arch-box.hermes {
+            border-top: 3px solid #6c5ce7;
+        }
+
+        .decision-matrix {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .decision-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .decision-row:last-child {
+            border-bottom: none;
+        }
+
+        .decision-criterion {
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .score {
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .score.openclaw {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        .score.hermes {
+            background: rgba(108, 92, 231, 0.2);
+            color: #6c5ce7;
+        }
+
+        .pro-con {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .pros, .cons {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 12px;
+        }
+
+        .pros {
+            border-left: 4px solid #2ecc71;
+        }
+
+        .cons {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .warning {
+            background: rgba(241, 196, 15, 0.1);
+            border: 1px solid rgba(241, 196, 15, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #f39c12;
+            text-align: left;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 2rem;
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .comparison-grid,
+            .architecture-diagram,
+            .pro-con {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .decision-row {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        .highlight {
+            color: #4ecdc4;
+            font-weight: 500;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>OpenClaw vs Hermes Agent</h1>
+            <p class="subtitle">An Honest Comparison</p>
+            <div style="margin: 3rem 0;">
+                <p>Two open-source AI agent frameworks</p>
+                <p>Different approaches, similar goals</p>
+                <p class="highlight">Which one is right for you?</p>
+            </div>
+            <div class="warning">
+                <strong>Fair Warning:</strong> This is an unbiased comparison. Both platforms have genuine strengths and weaknesses. Neither is perfect.
+            </div>
+        </div>
+
+        <!-- Slide 2: What Are They? -->
+        <div class="slide">
+            <h2>What Are They?</h2>
+            <div class="comparison-grid">
+                <div class="platform openclaw">
+                    <span class="icon">🦀</span>
+                    <div class="platform-title">OpenClaw</div>
+                    <p><strong>Gateway-first AI agent platform</strong></p>
+                    <ul class="feature-list">
+                        <li>Self-hosted gateway for chat apps</li>
+                        <li>Node.js-based, MIT licensed</li>
+                        <li>Community-driven development</li>
+                        <li>Established platform (longer history)</li>
+                        <li>Focus on multi-channel integration</li>
+                    </ul>
+                </div>
+                <div class="platform hermes">
+                    <span class="icon">🧠</span>
+                    <div class="platform-title">Hermes Agent</div>
+                    <p><strong>Self-improving AI agent</strong></p>
+                    <ul class="feature-list">
+                        <li>Built-in learning loop</li>
+                        <li>Python-based, by Nous Research</li>
+                        <li>Research lab backing</li>
+                        <li>Newer platform (July 2025)</li>
+                        <li>Focus on autonomous improvement</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Philosophy & Approach -->
+        <div class="slide">
+            <h2>Philosophy & Approach</h2>
+            <div class="comparison-grid">
+                <div class="platform openclaw">
+                    <div class="platform-title">Gateway-First</div>
+                    <ul class="feature-list">
+                        <li><strong>Connect everything</strong> — WhatsApp, Telegram, Discord, iMessage, Signal</li>
+                        <li><strong>Human-agent collaboration</strong> — you stay in control</li>
+                        <li><strong>Tool-based architecture</strong> — discrete capabilities</li>
+                        <li><strong>Manual memory curation</strong> — you decide what's important</li>
+                    </ul>
+                </div>
+                <div class="platform hermes">
+                    <div class="platform-title">Learning-First</div>
+                    <ul class="feature-list">
+                        <li><strong>Autonomous improvement</strong> — creates skills from experience</li>
+                        <li><strong>Self-modifying behavior</strong> — learns from mistakes</li>
+                        <li><strong>Research-oriented</strong> — RL training, trajectory analysis</li>
+                        <li><strong>Auto-curated memory</strong> — AI decides what to remember</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Architecture -->
+        <div class="slide">
+            <h2>Technical Architecture</h2>
+            <div class="architecture-diagram">
+                <div class="arch-box openclaw">
+                    <div class="platform-title">OpenClaw Stack</div>
+                    <div class="tech-stack">
+                        <div class="tech-item">Node.js Gateway</div>
+                        <div class="tech-item">Plugin System</div>
+                        <div class="tech-item">File-based Config</div>
+                        <div class="tech-item">Web Control UI</div>
+                        <div class="tech-item">Mobile Nodes</div>
+                        <div class="tech-item">Tailscale</div>
+                    </div>
+                </div>
+                <div class="arch-box hermes">
+                    <div class="platform-title">Hermes Stack</div>
+                    <div class="tech-stack">
+                        <div class="tech-item">Python Agent</div>
+                        <div class="tech-item">6 Terminal Backends</div>
+                        <div class="tech-item">SQLite + FTS5</div>
+                        <div class="tech-item">Honcho Modeling</div>
+                        <div class="tech-item">MCP Integration</div>
+                        <div class="tech-item">Serverless Ready</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Installation & Setup -->
+        <div class="slide">
+            <h2>Installation & Setup</h2>
+            <div class="comparison-grid">
+                <div class="platform openclaw">
+                    <div class="platform-title">npm install</div>
+                    <ul class="feature-list">
+                        <li>Node.js ecosystem</li>
+                        <li>Config in ~/.openclaw/openclaw.json</li>
+                        <li>Manual plugin configuration</li>
+                        <li>Self-hosted gateway setup</li>
+                        <li>Channel app integrations</li>
+                    </ul>
+                    <div class="metric">
+                        <span class="metric-value">⭐⭐⭐</span>
+                        <span class="metric-label">Setup Complexity</span>
+                    </div>
+                </div>
+                <div class="platform hermes">
+                    <div class="platform-title">curl installer</div>
+                    <ul class="feature-list">
+                        <li>Python environment</li>
+                        <li>Multiple backend options</li>
+                        <li>Migration tool from OpenClaw</li>
+                        <li>Serverless deployment options</li>
+                        <li>Auto-configuration features</li>
+                    </ul>
+                    <div class="metric">
+                        <span class="metric-value">⭐⭐⭐⭐</span>
+                        <span class="metric-label">Setup Simplicity</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Channel Support -->
+        <div class="slide">
+            <h2>Channel Support</h2>
+            <div style="text-align: center; margin: 2rem 0;">
+                <h3>Both platforms support the same core channels</h3>
+            </div>
+            <div class="tech-stack">
+                <div class="tech-item">Telegram</div>
+                <div class="tech-item">Discord</div>
+                <div class="tech-item">Slack</div>
+                <div class="tech-item">WhatsApp</div>
+                <div class="tech-item">Signal</div>
+                <div class="tech-item">CLI</div>
+            </div>
+            <div class="comparison-grid" style="margin-top: 3rem;">
+                <div class="platform openclaw">
+                    <div class="platform-title">OpenClaw Exclusive</div>
+                    <ul class="feature-list">
+                        <li><span class="highlight">iMessage integration</span> — macOS only</li>
+                        <li>Mobile companion apps (iOS/Android)</li>
+                        <li>Camera/canvas access via mobile nodes</li>
+                        <li>Web Control UI dashboard</li>
+                    </ul>
+                </div>
+                <div class="platform hermes">
+                    <div class="platform-title">Hermes Exclusive</div>
+                    <ul class="feature-list">
+                        <li>Voice memo transcription</li>
+                        <li>Enhanced CLI experience</li>
+                        <li>Research trajectory export</li>
+                        <li>Currently no mobile apps</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Memory & Learning -->
+        <div class="slide">
+            <h2>Memory & Learning</h2>
+            <div class="comparison-grid">
+                <div class="platform openclaw">
+                    <div class="platform-title">Manual Curation</div>
+                    <ul class="feature-list">
+                        <li><strong>File-based memory</strong> — MEMORY.md, SOUL.md, AGENTS.md</li>
+                        <li><strong>Human-curated</strong> — you decide what's important</li>
+                        <li><strong>Context files</strong> — explicit knowledge management</li>
+                        <li><strong>Session-based</strong> — fresh start each time</li>
+                        <li><strong>Predictable behavior</strong> — no surprises</li>
+                    </ul>
+                </div>
+                <div class="platform hermes">
+                    <div class="platform-title">Auto-Curation + Learning</div>
+                    <ul class="feature-list">
+                        <li><strong>FTS5 + LLM search</strong> — semantic memory lookup</li>
+                        <li><strong>Agent-curated memory</strong> — AI decides importance</li>
+                        <li><strong>Periodic nudges</strong> — proactive memory updates</li>
+                        <li><strong>Self-improving loop</strong> — learns from experience</li>
+                        <li><strong>Honcho dialectic modeling</strong> — user preference learning</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="warning">
+                <strong>Trade-off:</strong> OpenClaw gives you control but requires more work. Hermes is autonomous but less predictable.
+            </div>
+        </div>
+
+        <!-- Slide 8: Skills System -->
+        <div class="slide">
+            <h2>Skills System</h2>
+            <div style="text-align: center; margin: 2rem 0;">
+                <h3>Both use the <span class="highlight">AgentSkills.io</span> standard</h3>
+                <p>Same format, different approaches to creation</p>
+            </div>
+            <div class="comparison-grid">
+                <div class="platform openclaw">
+                    <div class="platform-title">Human-Created Skills</div>
+                    <ul class="feature-list">
+                        <li>Manual skill authoring</li>
+                        <li>SKILL.md documentation</li>
+                        <li>Curated skill library</li>
+                        <li>Explicit capability definition</li>
+                        <li>Stable, predictable behavior</li>
+                    </ul>
+                    <div class="metric">
+                        <span class="metric-value">High</span>
+                        <span class="metric-label">Quality Control</span>
+                    </div>
+                </div>
+                <div class="platform hermes">
+                    <div class="platform-title">Auto-Generated Skills</div>
+                    <ul class="feature-list">
+                        <li><span class="highlight">Creates skills from experience</span></li>
+                        <li>Learning-based skill generation</li>
+                        <li>Self-improving capabilities</li>
+                        <li>Automatic documentation</li>
+                        <li>Adaptive skill evolution</li>
+                    </ul>
+                    <div class="metric">
+                        <span class="metric-value">High</span>
+                        <span class="metric-label">Automation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Terminal & Compute -->
+        <div class="slide">
+            <h2>Terminal & Compute Options</h2>
+            <div class="comparison-grid">
+                <div class="platform openclaw">
+                    <div class="platform-title">Local Focus</div>
+                    <ul class="feature-list">
+                        <li>Local terminal execution</li>
+                        <li>Self-hosted deployment</li>
+                        <li>Direct system access</li>
+                        <li>Tailscale for remote access</li>
+                        <li>Always-on local instance</li>
+                    </ul>
+                    <div class="metric">
+                        <span class="metric-value">1</span>
+                        <span class="metric-label">Backend Options</span>
+                    </div>
+                </div>
+                <div class="platform hermes">
+                    <div class="platform-title">6 Backend Options</div>
+                    <ul class="feature-list">
+                        <li><span class="highlight">Local, Docker, SSH</span></li>
+                        <li><span class="highlight">Daytona, Singularity, Modal</span></li>
+                        <li>Serverless persistence options</li>
+                        <li>Hibernates when idle = cost savings</li>
+                        <li>Cloud-native deployment</li>
+                    </ul>
+                    <div class="metric">
+                        <span class="metric-value">6</span>
+                        <span class="metric-label">Backend Options</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Model Support -->
+        <div class="slide">
+            <h2>Model Support</h2>
+            <div class="comparison-grid">
+                <div class="platform openclaw">
+                    <div class="platform-title">Provider-Configured</div>
+                    <ul class="feature-list">
+                        <li>Pi as default agent</li>
+                        <li>Claude, GPT, other providers</li>
+                        <li>Fixed model per session</li>
+                        <li>Provider-specific configuration</li>
+                        <li>Stable model behavior</li>
+                    </ul>
+                </div>
+                <div class="platform hermes">
+                    <div class="platform-title">Model-Agnostic</div>
+                    <ul class="feature-list">
+                        <li><span class="highlight">Nous Portal integration</span></li>
+                        <li><span class="highlight">OpenRouter (200+ models)</span></li>
+                        <li>OpenAI, custom endpoints</li>
+                        <li>Hot-swap models during conversation</li>
+                        <li>Research-grade model access</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <p class="highlight">Hermes wins on model flexibility and variety</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: OpenClaw Unique Strengths -->
+        <div class="slide">
+            <h2>OpenClaw Unique Strengths</h2>
+            <div class="pro-con">
+                <div class="pros">
+                    <h3>🎯 What OpenClaw Does Best</h3>
+                    <ul class="feature-list">
+                        <li><strong>iMessage integration</strong> — only platform that supports it</li>
+                        <li><strong>Mobile companion apps</strong> — iOS/Android nodes</li>
+                        <li><strong>Web Control UI</strong> — visual dashboard</li>
+                        <li><strong>Mature ecosystem</strong> — longer development history</li>
+                        <li><strong>Predictable behavior</strong> — manual curation = consistency</li>
+                        <li><strong>Community-driven</strong> — not dependent on single company</li>
+                        <li><strong>Tailscale integration</strong> — enterprise-grade networking</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h3>⚠️ Limitations</h3>
+                    <ul class="feature-list">
+                        <li>More manual setup required</li>
+                        <li>No auto-learning capabilities</li>
+                        <li>Limited to local/self-hosted</li>
+                        <li>Skills must be manually created</li>
+                        <li>Memory curation is manual work</li>
+                        <li>Node.js dependency</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Hermes Unique Strengths -->
+        <div class="slide">
+            <h2>Hermes Agent Unique Strengths</h2>
+            <div class="pro-con">
+                <div class="pros">
+                    <h3>🧠 What Hermes Does Best</h3>
+                    <ul class="feature-list">
+                        <li><strong>Self-improving loop</strong> — genuinely novel approach</li>
+                        <li><strong>Serverless backends</strong> — cost-effective scaling</li>
+                        <li><strong>Research backing</strong> — Nous Research expertise</li>
+                        <li><strong>Migration tool</strong> — easy switch from OpenClaw</li>
+                        <li><strong>Auto-skill generation</strong> — learns new capabilities</li>
+                        <li><strong>Advanced memory</strong> — FTS5 + LLM semantic search</li>
+                        <li><strong>Model flexibility</strong> — 200+ models via OpenRouter</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h3>⚠️ Limitations</h3>
+                    <ul class="feature-list">
+                        <li>Newer platform — less proven</li>
+                        <li>No mobile apps yet</li>
+                        <li>Less predictable (autonomous behavior)</li>
+                        <li>Dependent on Nous Research</li>
+                        <li>No iMessage support</li>
+                        <li>Python dependency</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Who Should Use What? -->
+        <div class="slide">
+            <h2>Who Should Use What?</h2>
+            <div class="decision-matrix">
+                <div class="decision-row">
+                    <div class="decision-criterion">Use Case</div>
+                    <div class="score openclaw">OpenClaw</div>
+                    <div class="score hermes">Hermes</div>
+                </div>
+                <div class="decision-row">
+                    <div>Need iMessage integration</div>
+                    <div class="score openclaw">✓ Only option</div>
+                    <div class="score hermes">✗ Not supported</div>
+                </div>
+                <div class="decision-row">
+                    <div>Want predictable, manual control</div>
+                    <div class="score openclaw">✓ File-based</div>
+                    <div class="score hermes">~ Autonomous</div>
+                </div>
+                <div class="decision-row">
+                    <div>Research & experimentation</div>
+                    <div class="score openclaw">~ Basic tools</div>
+                    <div class="score hermes">✓ Built for it</div>
+                </div>
+                <div class="decision-row">
+                    <div>Cost-conscious deployment</div>
+                    <div class="score openclaw">~ Always-on</div>
+                    <div class="score hermes">✓ Serverless</div>
+                </div>
+                <div class="decision-row">
+                    <div>Mobile camera/voice access</div>
+                    <div class="score openclaw">✓ Mobile nodes</div>
+                    <div class="score hermes">~ Coming soon?</div>
+                </div>
+                <div class="decision-row">
+                    <div>Self-improving AI behavior</div>
+                    <div class="score openclaw">✗ Manual only</div>
+                    <div class="score hermes">✓ Core feature</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: The Honest Verdict -->
+        <div class="slide">
+            <h2>The Honest Verdict</h2>
+            <div style="text-align: center; margin: 2rem 0;">
+                <h3>They overlap heavily — but serve different philosophies</h3>
+            </div>
+            
+            <div class="warning">
+                <strong>The Reality:</strong> Hermes Agent was clearly inspired by (or forked from) OpenClaw. The migration tool, AgentSkills compatibility, and similar architecture aren't coincidental.
+            </div>
+
+            <div class="comparison-grid" style="margin: 3rem 0;">
+                <div class="platform openclaw">
+                    <div class="platform-title">OpenClaw = Control</div>
+                    <ul class="feature-list">
+                        <li>Mature, stable platform</li>
+                        <li>You decide everything</li>
+                        <li>Broader channel support</li>
+                        <li>Community-driven development</li>
+                        <li>Choose if you want predictability</li>
+                    </ul>
+                </div>
+                <div class="platform hermes">
+                    <div class="platform-title">Hermes = Autonomy</div>
+                    <ul class="feature-list">
+                        <li>Newer challenger with novel features</li>
+                        <li>AI decides and learns</li>
+                        <li>Research lab backing</li>
+                        <li>Cost-effective serverless options</li>
+                        <li>Choose if you want AI evolution</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="font-size: 1.5rem; margin-top: 3rem; color: #4ecdc4;">
+                <strong>Bottom line:</strong> Both are solid. OpenClaw for control freaks, Hermes for AI experimenters.
+            </p>
+        </div>
+    </div>
+
+    <div class="slide-counter">
+        <span id="slideNumber">1</span> / 14
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="prevSlide()">← Prev</button>
+        <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            document.getElementById('slideNumber').textContent = currentSlide + 1;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Touch navigation
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleGesture();
+        });
+
+        function handleGesture() {
+            if (touchEndX < touchStartX - 50) {
+                nextSlide();
+            }
+            if (touchEndX > touchStartX + 50) {
+                prevSlide();
+            }
+        }
+
+        // Auto-advance slides with spacebar
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                currentSlide = 0;
+                showSlide(0);
+            }
+        });
+    </script>
+</body>
+</html>
